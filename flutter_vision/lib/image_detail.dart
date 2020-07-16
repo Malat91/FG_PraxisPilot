@@ -44,24 +44,20 @@ class _DetailScreenState extends State<DetailScreen> {
     String pattern =
         r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$";
     RegExp regEx = RegExp(pattern);
-    String x='Terninal-ID';
     String mailAddress = "";
 
     for (TextBlock block in visionText.blocks) {
       for (TextLine line in block.lines) {
-        //print(line.text);
         // Checking if the line contains an email address
-        if (line.text.contains(x)) {
-          //mailAddress += line.text + '\n';
-          print('hello'+line.text);
-          x=line.text;
+        if (line.text.contains('@')) {
+          mailAddress += line.text + '\n';
         }
       }
     }
 
     if (this.mounted) {
       setState(() {
-        recognizedText = x;
+        recognizedText = mailAddress;
       });
     }
 
