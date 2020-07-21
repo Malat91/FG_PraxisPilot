@@ -1,9 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_vision/image_detail.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 // Global variable for storing the list of
 // cameras available
@@ -39,12 +41,13 @@ class CameraScreen extends StatefulWidget {
 }
 
 class _CameraScreenState extends State<CameraScreen> {
+  bool _inProcess = false;
   CameraController _controller;
   @override
   void initState() {
     super.initState();
 
-    _controller = CameraController(cameras[0], ResolutionPreset.medium);
+    _controller = CameraController(cameras[0], ResolutionPreset.veryHigh);
     _controller.initialize().then((_) {
       if (!mounted) {
         return;
@@ -59,7 +62,9 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   Future<String> _takePicture() async {
-
+    this.setState((){
+      _inProcess = true;
+    });
     // Checking whether the controller is initialized
     if (!_controller.value.isInitialized) {
       print("Controller is not initialized");
@@ -80,7 +85,7 @@ class _CameraScreenState extends State<CameraScreen> {
     final Directory appDocDir = await getApplicationDocumentsDirectory();
     final String visionDir = '${appDocDir.path}/Photos/Vision\ Images';
     await Directory(visionDir).create(recursive: true);
-    final String imagePath = '$visionDir/image_$formattedDateTime.jpg';
+    String imagePath = '$visionDir/image_$formattedDateTime.jpg';
 
     // Checking whether the picture is being taken
     // to prevent execution of the function again
@@ -93,7 +98,35 @@ class _CameraScreenState extends State<CameraScreen> {
     try {
       // Captures the image and saves it to the
       // provided path
-      await _controller.takePicture(imagePath);
+     await _controller.takePicture(imagePath);
+     //File image=File(imagePath);
+     if(imagePath != null){
+       File cropped = await ImageCropper.cropImage(
+           sourcePath: imagePath,
+           aspectRatio: CropAspectRatio(
+               ratioX: 1, ratioY: 3),
+           compressQuality: 100,
+           maxWidth: 700,
+           maxHeight: 1500,
+           compressFormat: ImageCompressFormat.jpg,
+           androidUiSettings: AndroidUiSettings(
+             backgroundColor: Colors.white,
+           )
+
+       );
+       print('After crop $cropped');
+       this.setState((){
+         //_selectedFile =cropped;
+
+         imagePath=cropped.path;
+         _inProcess = false;
+       });
+     } else {
+       this.setState((){
+         _inProcess = false;
+       });
+     }
+
     } on CameraException catch (e) {
       print("Camera Exception: $e");
       return null;
@@ -121,7 +154,11 @@ class _CameraScreenState extends State<CameraScreen> {
                 label: Text("Click"),
                 onPressed: () async {
                   await _takePicture().then((String path) {
+                    print('hello');
+
                     if (path != null) {
+                     // _buildCroppingImage(File(path));
+                      //print('hello crop');
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -144,4 +181,5 @@ class _CameraScreenState extends State<CameraScreen> {
       ),
     );
   }
+
 }
