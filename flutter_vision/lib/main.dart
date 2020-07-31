@@ -98,34 +98,31 @@ class _CameraScreenState extends State<CameraScreen> {
     try {
       // Captures the image and saves it to the
       // provided path
-     await _controller.takePicture(imagePath);
-     //File image=File(imagePath);
-     if(imagePath != null){
-       File cropped = await ImageCropper.cropImage(
-           sourcePath: imagePath,
-           aspectRatio: CropAspectRatio(
-               ratioX: 1, ratioY: 3),
-           compressQuality: 100,
-           maxWidth: 700,
-           maxHeight: 1500,
-           compressFormat: ImageCompressFormat.jpg,
-           androidUiSettings: AndroidUiSettings(
-             backgroundColor: Colors.white,
-           )
+      await _controller.takePicture(imagePath);
+      //File image=File(imagePath);
+      if(imagePath != null){
+        File cropped = await ImageCropper.cropImage(
+          sourcePath: imagePath,
+          cropStyle: CropStyle.rectangle,
+          aspectRatio: CropAspectRatio(ratioX: MediaQuery.of(context).size.width * 0.9
+              , ratioY: MediaQuery.of(context).size.width * 0.9 / 0.7),
+          androidUiSettings: AndroidUiSettings(
+              hideBottomControls: true,
+              //initAspectRatio: CropAspectRatioPreset.original,
+              lockAspectRatio: false),
+        );
+        print('After crop $cropped');
+        this.setState((){
+          //_selectedFile =cropped;
 
-       );
-       print('After crop $cropped');
-       this.setState((){
-         //_selectedFile =cropped;
-
-         imagePath=cropped.path;
-         _inProcess = false;
-       });
-     } else {
-       this.setState((){
-         _inProcess = false;
-       });
-     }
+          imagePath=cropped.path;
+          _inProcess = false;
+        });
+      } else {
+        this.setState((){
+          _inProcess = false;
+        });
+      }
 
     } on CameraException catch (e) {
       print("Camera Exception: $e");
@@ -143,8 +140,25 @@ class _CameraScreenState extends State<CameraScreen> {
       ),
       body: _controller.value.isInitialized
           ? Stack(
+        alignment: Alignment.center,
         children: <Widget>[
           CameraPreview(_controller),
+
+          Container(
+
+            padding: const EdgeInsets.all(0),
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.width * 0.9 / 0.7,
+            decoration: new BoxDecoration(
+                border: Border.all(
+                    color: Colors.white,
+                    width: 2,
+                    style: BorderStyle.solid),
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.all(Radius.circular(4.0))),
+            //child: CameraPreview(_controller),
+          ),
+
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Container(
@@ -157,7 +171,7 @@ class _CameraScreenState extends State<CameraScreen> {
                     print('hello');
 
                     if (path != null) {
-                     // _buildCroppingImage(File(path));
+                      // _buildCroppingImage(File(path));
                       //print('hello crop');
                       Navigator.push(
                         context,
