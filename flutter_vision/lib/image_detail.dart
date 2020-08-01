@@ -1,25 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:flutter_vision/pdf.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'dart:async';
-
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:path_provider/path_provider.dart';
+import 'package:printing/printing.dart';
+import 'dart:ui' as ui;
+import 'dart:typed_data';
+import 'package:flutter_vision/PdfPreviewScreen.dart';
+import 'package:flutter_vision/main.dart';
 
 class DetailScreen extends StatefulWidget {
   final String imagePath;
-  DetailScreen(this.imagePath);
+  List<File> _files;
+  DetailScreen(this.imagePath,this._files);
 
     @override
-  _DetailScreenState createState() => new _DetailScreenState(imagePath);
+  _DetailScreenState createState() => new _DetailScreenState(imagePath,_files);
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-  _DetailScreenState(this.path);
-
+  _DetailScreenState(this.path,this._files);
+  List<File> _files;
   final String path;
 
   Size _imageSize;
   String recognizedText = "Loading ...";
+  final pdf=pw.Document();
 
 
 
@@ -85,10 +95,42 @@ class _DetailScreenState extends State<DetailScreen> {
 
   }
 
+
+  Future savePdf() async{
+    Directory documentDirectory = await getApplicationDocumentsDirectory();
+
+    String documentPath = documentDirectory.path;
+
+    File file = File("$documentPath/example.pdf");
+    //File file=File(imagePath);
+    file.writeAsBytesSync(pdf.save());
+    print(file);
+  }
+
+
   @override
   void initState() {
     _initializeVision();
     super.initState();
+  }
+
+
+  writeOnPdf() async{
+    for (var i = 0; i < _files.length; i++) {
+      // added this
+      var image = PdfImage.file(
+        pdf.document,
+        bytes: File(_files[i].path).readAsBytesSync(),
+      );
+
+      pdf.addPage(pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Center(child: pw.Image(image));
+          }));
+      print('helloooooooooooo');
+      print(pdf.document);
+    }
   }
 
   @override
@@ -123,25 +165,34 @@ class _DetailScreenState extends State<DetailScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Row(),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Text(
-                        "Identified emails",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: 60,
-                      child: SingleChildScrollView(
-                        child: Text(
-                          recognizedText,
-                        ),
-                      ),
-                    ),
+                    //Row(),
+                   // Container(
+                      //height: 60,
+                      //child: SingleChildScrollView(
+                 //       child: ListTile(
+                          Row(
+                            children: <Widget>[
+                              Expanded(child: RaisedButton(onPressed: () {Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) =>CameraScreen()));},child: Text("Recapture"),color: Colors.black,textColor: Colors.white,)),
+                              Expanded(child: RaisedButton(onPressed: () async{
+
+                              Directory documentDirectory = await getApplicationDocumentsDirectory();
+
+                              String documentPath = documentDirectory.path;
+
+                              String fullPath = "$documentPath/example.pdf";
+
+                              Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) => PdfPreviewScreen(path: fullPath,)
+                              ));},
+                                child: Text("Export"),color: Colors.black,textColor: Colors.white,)),
+                              Expanded(child: RaisedButton(onPressed: () async{writeOnPdf();
+                              await savePdf();},child: Text("Add Page to pdf"),color: Colors.black,textColor: Colors.white,)),
+                            ],
+                          ),
+                  //      )
+                     // ),
+                    //),
                   ],
                 ),
               ),
