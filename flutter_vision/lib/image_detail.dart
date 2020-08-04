@@ -170,10 +170,11 @@ class _DetailScreenState extends State<DetailScreen> {
                  //       child: ListTile(
                           Row(
                             children: <Widget>[
-                              Expanded(child: RaisedButton(onPressed: () {Navigator.push(context, MaterialPageRoute(
+                              Expanded(child: RaisedButton(onPressed: () {_files.removeLast();Navigator.push(context, MaterialPageRoute(
                                   builder: (context) =>CameraScreen()));},child: Text("Recapture"),color: Colors.black,textColor: Colors.white,)),
                               Expanded(child: RaisedButton(onPressed: () async{
-
+                                writeOnPdf();
+                                await savePdf();
                               Directory documentDirectory = await getApplicationDocumentsDirectory();
 
                               String documentPath = documentDirectory.path;
@@ -184,8 +185,8 @@ class _DetailScreenState extends State<DetailScreen> {
                                   builder: (context) => PdfPreviewScreen(path: fullPath,)
                               ));},
                                 child: Text("Export"),color: Colors.black,textColor: Colors.white,)),
-                              Expanded(child: RaisedButton(onPressed: () async{writeOnPdf();
-                              await savePdf();},child: Text("Add Page to pdf"),color: Colors.black,textColor: Colors.white,)),
+                              Expanded(child: RaisedButton(onPressed: () {Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) =>CameraScreen()));},child: Text("Add Page to pdf"),color: Colors.black,textColor: Colors.white,)),
                             ],
                           ),
                   //      )
