@@ -10,6 +10,7 @@ import 'package:printing/printing.dart';
 import 'dart:ui' as ui;
 import 'package:flutter_vision/PdfPreviewScreen.dart';
 import 'package:flutter_vision/main.dart';
+import 'package:flutter_vision/PdfViewPage.dart';
 
 class DetailScreen extends StatefulWidget {
   final String imagePath;
@@ -182,7 +183,7 @@ class _DetailScreenState extends State<DetailScreen> {
                               String fullPath = "$documentPath/example.pdf";
 
                               Navigator.push(context, MaterialPageRoute(
-                                  builder: (context) => PdfPreviewScreen(path: fullPath,)
+                                  builder: (context) =>  PdfViewPage(path: fullPath,)
                               ));},
                                 child: Text("Export"),color: Colors.black,textColor: Colors.white,)),
                               Expanded(child: RaisedButton(onPressed: () {Navigator.push(context, MaterialPageRoute(
