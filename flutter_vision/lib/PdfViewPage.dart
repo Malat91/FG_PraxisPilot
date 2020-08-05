@@ -1,5 +1,10 @@
+import 'dart:io';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:flutter/material.dart';
+import 'package:pdf/pdf.dart';
+//import 'package:simple_share/simple_share.dart';
+import 'package:share_extend/share_extend.dart';
+
 
 
 class PdfViewPage extends StatefulWidget {
@@ -16,11 +21,22 @@ class _PdfViewPageState extends State<PdfViewPage> {
   bool pdfReady = false;
   PDFViewController _pdfViewController;
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("My Document"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.share),
+            onPressed: () {
+              ShareExtend.share(widget.path, "file");
+            }
+             // SimpleShare.share(uri: ,msg: "My message", subject: "subject example");},
+          ),
+        ],
       ),
       body: Stack(
         alignment: Alignment.bottomCenter,
@@ -32,6 +48,7 @@ class _PdfViewPageState extends State<PdfViewPage> {
             pageSnap: true,
             swipeHorizontal: true,
             nightMode: false,
+
             onError: (e) {
               print(e);
             },
@@ -55,7 +72,7 @@ class _PdfViewPageState extends State<PdfViewPage> {
           )
               : Offstage(),
           Text('Seite ${_currentPage+1}',
-              style: TextStyle(fontSize: 10))
+              style: TextStyle(fontSize: 10)),
         ],
       ),
       floatingActionButton: Row(
