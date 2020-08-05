@@ -4,8 +4,9 @@ import 'package:camera/camera.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_vision/image_detail.dart';
+//import 'package:flutter_vision/image_detail.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:flutter_vision/CameraToPdfPage.dart';
 
 // Global variable for storing the list of
 // cameras available
@@ -185,7 +186,7 @@ class _CameraScreenState extends State<CameraScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => DetailScreen(path,_files),
+                          builder: (context) => CameraToPdfPage(path,_files),
                         ),
                       );
                     }
