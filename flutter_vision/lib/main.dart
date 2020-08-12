@@ -7,11 +7,15 @@ import 'package:path_provider/path_provider.dart';
 //import 'package:flutter_vision/image_detail.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:flutter_vision/CameraToPdfPage.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'package:flutter_vision/PdfViewPage.dart';
 
 // Global variable for storing the list of
 // cameras available
 List<CameraDescription> cameras = [];
-List<File> _files = [];
+List<File> files = [];
+
 Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
@@ -38,13 +42,16 @@ class MyApp extends StatelessWidget {
 }
 
 class CameraScreen extends StatefulWidget {
+
   @override
   _CameraScreenState createState() => _CameraScreenState();
+
 }
 
 class _CameraScreenState extends State<CameraScreen> {
   bool _inProcess = false;
   CameraController _controller;
+  static var pdf;//=pw.Document();
 
   @override
   void initState() {
@@ -65,6 +72,8 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   Future<String> _takePicture() async {
+    print('helloooooooooooooooooooooooooooooooooooooooo');
+    pdf=pw.Document();
     this.setState((){
       _inProcess = true;
     });
@@ -101,6 +110,7 @@ class _CameraScreenState extends State<CameraScreen> {
     try {
       // Captures the image and saves it to the
       // provided path
+
       await _controller.takePicture(imagePath);
       //File image=File(imagePath);
       if(imagePath != null){
@@ -133,6 +143,38 @@ class _CameraScreenState extends State<CameraScreen> {
     }
 
     return imagePath;
+  }
+
+  Future savePdf() async{
+    Directory documentDirectory = await getApplicationDocumentsDirectory();
+
+    String documentPath = documentDirectory.path;
+
+    File file = File("$documentPath/example.pdf");
+    //File file=File(imagePath);
+    file.writeAsBytesSync(pdf.save());
+    print('hellooooooo save pdf');
+    print(file);
+  }
+
+
+
+  writeOnPdf() async{
+    print('hellooooooo write pdf');
+    for (var i = 0; i < files.length; i++) {
+      // added this
+      var image = PdfImage.file(
+        pdf.document,
+        bytes: File(files[i].path).readAsBytesSync(),
+      );
+
+      pdf.addPage(pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Center(child: pw.Image(image));
+          }));
+
+    }
   }
 
   @override
@@ -171,6 +213,11 @@ class _CameraScreenState extends State<CameraScreen> {
                 label: Text("Click"),
                 onPressed: () async {
                   File cameraFile;
+                  Directory documentDirectory = await getApplicationDocumentsDirectory();
+
+                  String documentPath = documentDirectory.path;
+
+                  String fullPath = "$documentPath/example.pdf";
                   await _takePicture().then((String path) {
                     print('hello');
 
@@ -178,15 +225,19 @@ class _CameraScreenState extends State<CameraScreen> {
                       // _buildCroppingImage(File(path));
                       //print('hello crop');
                       cameraFile=File(path);
-                      List<File> temp = _files;
+                      List<File> temp = files;
                       temp.add(cameraFile);
                       setState(() {
-                        _files = temp;
+                        files = temp;
                       });
+
+                      writeOnPdf();
+                      savePdf();
+
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => CameraToPdfPage(path,_files),
+                          builder: (context) => PdfViewPage(path: fullPath,),
                         ),
                       );
                     }

@@ -29,6 +29,7 @@ class CameraToPdfPage extends StatefulWidget {
 
 class _CameraToPdfPageState extends State<CameraToPdfPage> {
   _CameraToPdfPageState(this.path,this._files){
+    print('hellooooooo constructor');
   }
   List<File> _files;
   final String path;
@@ -40,16 +41,15 @@ class _CameraToPdfPageState extends State<CameraToPdfPage> {
 
   final pdf=pw.Document();
 
-  @override
+ /* @override
   void initState() {
-    writeOnPdf();
-    savePdf().then((value){
+   // writeOnPdf();
+
       print('Async done');
-    });
     super.initState();
   }
 
-  Future savePdf() async{
+   Future <void> savePdf() async{
     Directory documentDirectory = await getApplicationDocumentsDirectory();
 
     String documentPath = documentDirectory.path;
@@ -59,18 +59,19 @@ class _CameraToPdfPageState extends State<CameraToPdfPage> {
     file.writeAsBytesSync(pdf.save());
 
     fullPath = "$documentPath/example.pdf";
+    print('helloooooooo save pdf');
     print(file);
   }
 
 
-  writeOnPdf() async{
+  Future <void> writeOnPdf() async{
     for (var i = 0; i < _files.length; i++) {
       // added this
       var image = PdfImage.file(
         pdf.document,
         bytes: File(_files[i].path).readAsBytesSync(),
       );
-
+      print('helloooooooo write pdf');
       pdf.addPage(pw.Page(
           pageFormat: PdfPageFormat.a4,
           build: (pw.Context context) {
@@ -79,10 +80,12 @@ class _CameraToPdfPageState extends State<CameraToPdfPage> {
 
     }
   }
-
+*/
 
   @override
   Widget build(BuildContext context) {
+    print('hellooooooo In scaffold');
+    //savePdf();
     return Scaffold(
       appBar: AppBar(
         title: Text("My Document"),
@@ -91,14 +94,16 @@ class _CameraToPdfPageState extends State<CameraToPdfPage> {
               icon: Icon(Icons.share),
               onPressed: () {
                 ShareExtend.share(fullPath, "file");
+
               }
             // SimpleShare.share(uri: ,msg: "My message", subject: "subject example");},
+
           ),
         ],
       ),
       body: Stack(
         alignment: Alignment.bottomCenter,
-        children: <Widget>[
+        /*children: <Widget>[
           PDFView(
             filePath: fullPath,
             autoSpacing: true,
@@ -157,7 +162,7 @@ class _CameraToPdfPageState extends State<CameraToPdfPage> {
           )
               : Offstage(),
 
-        ],
+        ],*/
 
       ),
 
